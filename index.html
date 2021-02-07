@@ -11,6 +11,27 @@
 <link rel="stylesheet" href="css/style.css" />  
 <style type="text/css">
 
+.navbar-default{
+    background-color: white;
+    color: darkslategrey
+}
+.navbar-default .navbar-nav .active a{
+    background-color: rgb(70, 130, 180);
+    color: white;
+}
+
+@media(max-width: 768px){
+    .navbar-default{
+        background-color: white;
+        color: darkslategrey;
+    }
+    .navbar-default .navbar-nav .active a{
+        background-color: rgb(70, 130, 180);
+        color: white;
+    }
+}
+
+
 h1 {
     font-family: "Roboto Slab", serif;
     color: #2F4F4F;
@@ -189,35 +210,55 @@ polyline{
     <nav class="navbar navbar-default">
         <div class="container-fluid">
         <div class="navbar-header">
-            <img class="nav-ufo" src="icons/polar.jpg">
+            <img class="nav-ufo" src="icons/animals3.jpg">
             </a>
         </div>
         </div>
     </nav>
+<!--Nav Bar-->
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <!--Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"
+                aria-expanded="false">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+
+        <!--Collect the nav links, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <!--left nac link-->
+            <ul class="nav navbar-nav">
+                <li class="active">
+                    <a href="index.html">Dashboard
+                        <span class="sr-only"></span>
+                    </a>
+                </li>
+            </ul>
+            <!--Right nav link -->
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="data.html">Data</a>
+                </li>
+
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container-fluid -->
+</nav>
+
     <div class="hero text-center">
 <h1>Animal Matters</h1>
 <blockquote id="quote">
 <p>Nature doesn't need people - people need nature; nature would survive the extinction of the human being and go on just fine, but human culture, human beings, cannot survive without nature.</p>
 <p>---- Harrison Ford <i>https://www.brainyquote.com/quotes/harrison_ford_733027</i></p></blockquote>
 </div>
-<div class="row">
-  <div class="col-md-2">
-    <div class="well">
-      <h5>Country Name. :</h5>
-      <script src="js/app.js"></script>
-      <script src="continent-110m.json"></script>
-      <select id="Dataset" onchange="optionChanged(this.value)"></select>
-    </div>
-    <div class="panel panel-primary">
-      <div class="panel-heading">
-        <h3 class="panel-title">Demographic Info</h3>
-      </div>
-      <div id="continent-110m-properties" class="panel-body"></div>
-    </div>
-  </div>
-  <div class="col-md-5">
 
-
+<div class="col-md-5">
 <div id="donut" class="graphic">
 <br>
 <br>

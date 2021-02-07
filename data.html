@@ -1,0 +1,4438 @@
+
+<html>
+    <head>
+    <meta charset="utf-8">
+    <title>Project 2</title>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="http://d3js.org/topojson.v2.min.js"></script>
+    <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
+    <script src="js/nouislider.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,900,‌​700,500,300,200,100|Roboto+Slab" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css" />  
+    <style type="text/css">
+    
+    .navbar-default{
+        background-color: white;
+        color: darkslategrey
+    }
+    .navbar-default .navbar-nav .active a{
+        background-color: rgb(20, 180, 164);
+        color: white;
+    }
+    
+    @media(max-width: 768px){
+        .navbar-default{
+            background-color: white;
+            color: darkslategrey;
+        }
+        .navbar-default .navbar-nav .active a{
+            background-color: rgb(20, 180, 164);
+            color: white;
+        }
+    }
+    
+    
+    h1 {
+        font-family: "Roboto Slab", serif;
+        color: #2F4F4F;
+        margin-left: 30px;
+        font-size: 300%;
+        font-weight: 900;
+    }
+    
+    h2 {
+        font-family: "Roboto Slab", serif;
+        color: #2F4F4F;
+        margin-left: 30px;
+        font-size: 200%;
+    }
+    
+    h3 {
+        margin-left: 480px;
+    }
+    
+    body {
+        font-family: "Roboto", sans-serif;
+        padding: 30px 60px -10px 30px;
+        background-color: #f6f6f6;
+        color: #374e68;
+    }
+    
+    .overlay {
+        height: 0;
+        width: 100%;
+        left: 0;
+        top: 0;
+        position: fixed;
+        z-index: 1;
+        background-color: #010614;
+        overflow-y: scroll;
+    }
+    
+    .graphic {
+        z-index:0;
+    }
+    
+    .animalClass {
+        z-index: 2;
+        color: #fbfbfb;
+        font-size: 18px;
+        margin-top: 4em;
+        margin-bottom: 4em;
+        margin-left: 35%;
+    }
+    
+    .species {
+        z-index: 2;
+        color: #f6f6f6;
+        font-size: 16px;
+        font-weight:300;
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+    
+    }
+    
+    .icons {
+        margin: 40px 30px 20px 100px;
+        padding: 3px;
+        border-color: #efefef;
+        border-radius: 50px;
+        box-shadow: 0 0 0 rgba(200, 50, 50, 0.3);
+        animation: pulse 2s infinite;
+    }
+    
+    .circles {
+        cursor: pointer;
+    }
+    
+    #slider {
+        margin-bottom: 20px;
+    }
+    
+    .countryTooltip {
+        color: #425871;
+        font-weight: 300;
+    }
+    
+    #mapLegend {
+        font-size: 60%;
+        font-weight: 200;
+        margin-bottom: 0px;
+    }
+    
+    p.explain {
+        margin-left: 500px;
+        color: #80a5cc;
+    }
+    
+    #quote {
+        border: none;
+        border-radius: 20px;
+        margin-left: 30px;
+        margin-right: 120px;
+        padding:40 80 40 80;
+        color: #fbfbfb;
+        background-color: #162e49;
+        font-size: 20px;
+    }
+    
+    .footer {
+        margin-top: 40px;
+        margin-left: 40px;
+        margin-bottom: 40px;
+        color: #253444;
+        font-size: 14px;
+    }
+    
+    a:link {
+        color: #e18f7f;
+    }
+    
+    a:visited {
+        color: #80a5cc;
+    }
+    
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(136, 67, 67, 0.3);
+      }
+      70% {
+          box-shadow: 0 0 2px 5px rgba(200, 50, 50, 0);
+      }
+      100% {
+          box-shadow: 0 0 0 0 rgba(200, 50, 50, 0);
+      }
+    }
+    polyline{
+      opacity: .3;
+      stroke: #142538;
+      stroke-width: 2px;
+      fill: none;
+    }
+    
+    .labelValue
+    {
+      font-size: 60%;
+      opacity: 0.5;
+      color: #142538;
+    }
+    
+    .toolTip {
+        position: absolute;
+        display: none;
+        width: 300px;
+        height: auto;
+        background: none repeat scroll 0 0 white;
+        opacity: 0.9;
+        border:  none;
+        border-radius: 5px;
+        color: #425871;
+        padding: 8px;
+        font-weight: 300;
+    }
+    .legend text {
+        font-size: 12px;
+        fill: #1c2631;
+    }
+    .labelName text {
+        font-size: 14px;
+        fill: #425871;
+    }
+    
+    .donutChart {
+        margin-left: 40px;
+        margin-bottom: 40px;
+    }
+    </style>
+    </head>
+    <body>
+    <div class="wrapper">
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+            <div class="navbar-header">
+                <img class="nav-ufo" src="icons/animals3.jpg">
+                </a>
+            </div>
+            </div>
+        </nav>
+    <!--Nav Bar-->
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <!--Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"
+                    aria-expanded="false">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+    
+            <!--Collect the nav links, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <!--left nac link-->
+                <ul class="nav navbar-nav">
+                    <li class="active">
+                        <a href="index.html">Dashboard
+                            <span class="sr-only"></span>
+                        </a>
+                    </li>
+                </ul>
+                <!--Right nav link -->
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="data.html">Data</a>
+                    </li>
+    
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
+    <!--Main Grid-->
+    <div class="container">
+        <div class="row">
+            <div class=" col-sm-5 col-md-12">
+                <div class="main-box">
+                    <h1 class="main-pg-header">Data</h1>
+                    <hr>
+                    <div class="summary txt">
+                        <table class="table table-bordered table-hover table-condensed">
+                        <thead><tr><th title="Field #1">Animal Class</th>
+                        <th title="Field #2">Species Name</th>
+                        <th title="Field #3">Common Name</th>
+                        <th title="Field #4">Year</th>
+                        <th title="Field #5">Continent</th>
+                        <th title="Field #6">Countries</th>
+                        </tr></thead>
+                        <tbody><tr>
+                        <td>Mammal</td>
+                        <td>Plagiodontia ipnaeum</td>
+                        <td>Samana hutia</td>
+                        <td align="right">1500</td>
+                        <td>North America</td>
+                        <td>Haiti</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Megalapteryx didinus</td>
+                        <td>Upland moa</td>
+                        <td align="right">1500</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Dinornis</td>
+                        <td>Giant moa</td>
+                        <td align="right">1500</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Emeus crassus</td>
+                        <td>Eastern moa</td>
+                        <td align="right">1500</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Anomalopteryx didiformis</td>
+                        <td>Bush moa</td>
+                        <td align="right">1500</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Saint Helena dove</td>
+                        <td align="right">1502</td>
+                        <td>Africa</td>
+                        <td>Saint Helena</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Saint Helena rail</td>
+                        <td align="right">1502</td>
+                        <td>Africa</td>
+                        <td>Saint Helena</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Small Saint Helena petrel</td>
+                        <td align="right">1502</td>
+                        <td>Africa</td>
+                        <td>Saint Helena</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Vespucci&#39;s rodent</td>
+                        <td align="right">1503</td>
+                        <td>South America</td>
+                        <td>Brazil</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Flores cave rat</td>
+                        <td align="right">1510</td>
+                        <td>Asia</td>
+                        <td>Indonesia</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Buhler&#39;s coryphomys</td>
+                        <td align="right">1510</td>
+                        <td>Asia</td>
+                        <td>Indonesia</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Flores long-nosed rat</td>
+                        <td align="right">1510</td>
+                        <td>Asia</td>
+                        <td>Indonesia</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Verhoeven&#39;s giant tree rat</td>
+                        <td align="right">1510</td>
+                        <td>Asia</td>
+                        <td>Indonesia</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Large sloth lemur</td>
+                        <td align="right">1510</td>
+                        <td>Africa</td>
+                        <td>Madagascar</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Saint Helena hoopoe</td>
+                        <td align="right">1550</td>
+                        <td>Africa</td>
+                        <td>Saint Helena</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Tyto pollens</td>
+                        <td>Bahaman barn owl</td>
+                        <td align="right">1600</td>
+                        <td>North America</td>
+                        <td>Bahamas</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Cuban coney</td>
+                        <td>Geocapromys columbianus</td>
+                        <td align="right">1600</td>
+                        <td>North America</td>
+                        <td>Cuba</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Boromys offella</td>
+                        <td>Oriente cave rat</td>
+                        <td align="right">1600</td>
+                        <td>North America</td>
+                        <td>Cuba</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Boromys torrei</td>
+                        <td>Torre&#39;s cave rat</td>
+                        <td align="right">1600</td>
+                        <td>North America</td>
+                        <td>Cuba</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>West Indies nesophontes</td>
+                        <td align="right">1600</td>
+                        <td>North America</td>
+                        <td>Cuba</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td> </td>
+                        <td>Mauritius skink (Leiolopisma mauritiana)</td>
+                        <td align="right">1600</td>
+                        <td>Africa</td>
+                        <td>Reunion</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Telespiza persecutrix</td>
+                        <td>Kauai finch</td>
+                        <td align="right">1600</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Heteropsomys insulans</td>
+                        <td>Hispaniolan edible rat</td>
+                        <td align="right">1600</td>
+                        <td>North America</td>
+                        <td>Haiti</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Hexolobodon phenax</td>
+                        <td>Imposter hutia</td>
+                        <td align="right">1600</td>
+                        <td>North America</td>
+                        <td>Haiti</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Solenodon marcanoi</td>
+                        <td>Marcano&#39;s solenodon</td>
+                        <td align="right">1600</td>
+                        <td>North America</td>
+                        <td>Haiti</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Isolobodon montanus</td>
+                        <td>Montane hutia</td>
+                        <td align="right">1600</td>
+                        <td>North America</td>
+                        <td>Haiti</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Nesiotites similis</td>
+                        <td>Sardinian giant shrew</td>
+                        <td align="right">1600</td>
+                        <td>Europe</td>
+                        <td>Italy</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Xenothrix mcgregori</td>
+                        <td>Jamaican monkey</td>
+                        <td align="right">1600</td>
+                        <td>North America</td>
+                        <td>Jamaica</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Pennatomys nivalis</td>
+                        <td>Nevis rice rat</td>
+                        <td align="right">1600</td>
+                        <td>North America</td>
+                        <td>Sint Eustatius</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Malacorhynchus scarletti</td>
+                        <td>Scarlett&#39;s duck</td>
+                        <td align="right">1600</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Biziura delautouri</td>
+                        <td>New Zealand musk duck</td>
+                        <td align="right">1600</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Pachyornis elephantopus</td>
+                        <td>Heavy-footed moa</td>
+                        <td align="right">1600</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Euryapteryx curtus</td>
+                        <td>Coastal moa</td>
+                        <td align="right">1600</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Pachyanas chathamica</td>
+                        <td>Chatham Islands duck</td>
+                        <td align="right">1600</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Aptornis defossor</td>
+                        <td>Adzebill</td>
+                        <td align="right">1600</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Aegolius gradyi</td>
+                        <td>Bermuda saw-whet owl</td>
+                        <td align="right">1600</td>
+                        <td>North America</td>
+                        <td>Bermuda</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Bermuteo avivorus</td>
+                        <td>Bermuda hawk</td>
+                        <td align="right">1603</td>
+                        <td>North America</td>
+                        <td>Bermuda</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Elephant bird</td>
+                        <td align="right">1610</td>
+                        <td>Africa</td>
+                        <td>Madagascar</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Mauritius starling</td>
+                        <td align="right">1610</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Ascension night heron</td>
+                        <td align="right">1610</td>
+                        <td>Africa</td>
+                        <td>Saint Helena</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Bos primigenius</td>
+                        <td>Aurochs (lived across Euro-Asia continent)</td>
+                        <td align="right">1627</td>
+                        <td>Europe</td>
+                        <td>Poland</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td> </td>
+                        <td>Mauritian giant skink</td>
+                        <td align="right">1650</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Saint Helena crake</td>
+                        <td align="right">1650</td>
+                        <td>Africa</td>
+                        <td>Saint Helena</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Ascension flightless crake</td>
+                        <td align="right">1656</td>
+                        <td>Africa</td>
+                        <td>Saint Helena</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Dodo</td>
+                        <td align="right">1662</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Broad-billed parrot</td>
+                        <td align="right">1680</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Mascarene coot</td>
+                        <td align="right">1693</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Reunion shelduck</td>
+                        <td align="right">1700</td>
+                        <td>Africa</td>
+                        <td>Reunion</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Reunion night hero</td>
+                        <td align="right">1700</td>
+                        <td>Africa</td>
+                        <td>Reunion</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Reunion kestrel</td>
+                        <td align="right">1700</td>
+                        <td>Africa</td>
+                        <td>Reunion</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Reunion rail</td>
+                        <td align="right">1700</td>
+                        <td>Africa</td>
+                        <td>Reunion</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Reunion pink pigeon</td>
+                        <td align="right">1700</td>
+                        <td>Africa</td>
+                        <td>Reunion</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Reunion owl</td>
+                        <td align="right">1700</td>
+                        <td>Africa</td>
+                        <td>Reunion</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Isolobodon portoricensis</td>
+                        <td>Puerto Rican hutia</td>
+                        <td align="right">1700</td>
+                        <td>North America</td>
+                        <td>Haiti</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Mauritius night-heron</td>
+                        <td align="right">1700</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Mauritian duck</td>
+                        <td align="right">1700</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Mauritian shelduck</td>
+                        <td align="right">1700</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Heteropsomys insulans</td>
+                        <td>Insular cave rat</td>
+                        <td align="right">1700</td>
+                        <td>North America</td>
+                        <td>Puerto Rico</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Monophyllus frater</td>
+                        <td>Puerto Rican long-nosed bat</td>
+                        <td align="right">1700</td>
+                        <td>North America</td>
+                        <td>Puerto Rico</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Reunion pigeon</td>
+                        <td align="right">1705</td>
+                        <td>Africa</td>
+                        <td>Reunion</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Red rail</td>
+                        <td align="right">1710</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Reunion gallinule</td>
+                        <td align="right">1730</td>
+                        <td>Africa</td>
+                        <td>Reunion</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Reunion flightless ibis</td>
+                        <td align="right">1750</td>
+                        <td>Africa</td>
+                        <td>Reunion</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Reunion sacred ibis</td>
+                        <td align="right">1750</td>
+                        <td>Africa</td>
+                        <td>Reunion</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td> </td>
+                        <td>Domed Mauritius giant tortoise</td>
+                        <td align="right">1750</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td> </td>
+                        <td>Saddle-backed Mauritius giant tortoise</td>
+                        <td align="right">1750</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Ara guadeloupensis</td>
+                        <td>Lesser Antillean macaw</td>
+                        <td align="right">1760</td>
+                        <td>North America</td>
+                        <td>Guadeloupe</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Loxioides kikuchi</td>
+                        <td>Kauai palila</td>
+                        <td align="right">1760</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Rodrigues night-heron</td>
+                        <td align="right">1760</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Rodrigues owl</td>
+                        <td align="right">1760</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Rodrigues parrot</td>
+                        <td align="right">1760</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Rodrigues rail</td>
+                        <td align="right">1760</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Rodrigues starling</td>
+                        <td align="right">1760</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Ara guadeloupensis</td>
+                        <td>Lesser Antillean macaw (lived in North America)</td>
+                        <td align="right">1760</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Mascarene grey parakeet</td>
+                        <td align="right">1764</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Mauritius grey parrot</td>
+                        <td align="right">1764</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Hydrodamalis gigas</td>
+                        <td>Steller&#39;s sea cow</td>
+                        <td align="right">1768</td>
+                        <td>Asia</td>
+                        <td>Russia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Gallicolumba ferruginea</td>
+                        <td>Tanna ground dove</td>
+                        <td align="right">1773</td>
+                        <td>Oceania</td>
+                        <td>Vanuatu</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Prolagus sardus</td>
+                        <td>Sardinian pika</td>
+                        <td align="right">1774</td>
+                        <td>Europe</td>
+                        <td>Italy</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Aplonis mavornata</td>
+                        <td>Mysterious starling</td>
+                        <td align="right">1774</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Prosobonia ellisi</td>
+                        <td>White-winged sandpiper</td>
+                        <td align="right">1777</td>
+                        <td>Oceania</td>
+                        <td>French Polynesia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Cyanoramphus ulietanus</td>
+                        <td>Society parakeet</td>
+                        <td align="right">1777</td>
+                        <td>Oceania</td>
+                        <td>French Polynesia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Circus eylesi</td>
+                        <td>Eyles&#39;s harrier</td>
+                        <td align="right">1777</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Gallirallus hypoleucus</td>
+                        <td>Tongatapu rail</td>
+                        <td align="right">1777</td>
+                        <td>Oceania</td>
+                        <td>Tonga</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Rodrigues solitaire</td>
+                        <td align="right">1778</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Amazona violacea</td>
+                        <td>Guadeloupe parrot</td>
+                        <td align="right">1779</td>
+                        <td>North America</td>
+                        <td>Guadeloupe</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Anodorhynchus purpurascens</td>
+                        <td>Violet macaw</td>
+                        <td align="right">1779</td>
+                        <td>North America</td>
+                        <td>Guadeloupe</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Amazona martinicana</td>
+                        <td>Martinique parrot</td>
+                        <td align="right">1779</td>
+                        <td>North America</td>
+                        <td>Martinique</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Aratinga chloroptera maugei</td>
+                        <td>Mauge&#39;s parakeet</td>
+                        <td align="right">1779</td>
+                        <td>North America</td>
+                        <td>Puerto Rico</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Amazona violacea</td>
+                        <td>Guadeloupe parrot</td>
+                        <td align="right">1779</td>
+                        <td>North America</td>
+                        <td>Guadeloupe</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Amazona martinicana</td>
+                        <td>Martinique parrot</td>
+                        <td align="right">1779</td>
+                        <td>North America</td>
+                        <td>Martinique</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Reunion swamphen</td>
+                        <td align="right">1780</td>
+                        <td>Africa</td>
+                        <td>Reunion</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Reunion parakeet</td>
+                        <td align="right">1780</td>
+                        <td>Africa</td>
+                        <td>Reunion</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Porzana nigra</td>
+                        <td>Miller&#39;s rail</td>
+                        <td align="right">1784</td>
+                        <td>Oceania</td>
+                        <td>French Polynesia</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Bison bonasus hungarorum</td>
+                        <td>Carpathian wisent (lived across Carpathian Mountains)</td>
+                        <td align="right">1790</td>
+                        <td>Europe</td>
+                        <td>Romania</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Eclectus infectus</td>
+                        <td>Oceanic eclectus parrot </td>
+                        <td align="right">1793</td>
+                        <td>Oceania</td>
+                        <td>Tonga</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Bluebuck</td>
+                        <td align="right">1799</td>
+                        <td>Africa</td>
+                        <td>South Africa</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Aratinga labati</td>
+                        <td>Guadeloupe parakeet</td>
+                        <td align="right">1800</td>
+                        <td>North America</td>
+                        <td>Guadeloupe</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td> </td>
+                        <td>Reunion giant tortoise</td>
+                        <td align="right">1800</td>
+                        <td>Africa</td>
+                        <td>Reunion</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Tribonyx hodgenorum</td>
+                        <td>Hodgens&#39; waterhen </td>
+                        <td align="right">1800</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Colaptes oceanicus</td>
+                        <td>Bermuda flicker</td>
+                        <td align="right">1800</td>
+                        <td>North America</td>
+                        <td>Bermuda</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Nyctanassa carcinocatactes</td>
+                        <td>Bermuda night heron</td>
+                        <td align="right">1800</td>
+                        <td>North America</td>
+                        <td>Bermuda</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Saint Helena cuckoo</td>
+                        <td align="right">1800</td>
+                        <td>Africa</td>
+                        <td>Saint Helena</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Dromaius baudinianus</td>
+                        <td>Kangaroo Island emu</td>
+                        <td align="right">1805</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td> </td>
+                        <td>Domed Rodrigues giant tortoise</td>
+                        <td align="right">1810</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td> </td>
+                        <td>Saddle-backed Rodrigues giant tortoise</td>
+                        <td align="right">1810</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Hooded seedeater</td>
+                        <td align="right">1823</td>
+                        <td>South America</td>
+                        <td>Brazil</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Pomarea pomarea</td>
+                        <td>Maupiti monarch</td>
+                        <td align="right">1823</td>
+                        <td>Oceania</td>
+                        <td>French Polynesia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Bonin thrush</td>
+                        <td align="right">1827</td>
+                        <td>Asia</td>
+                        <td>Japan</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Porzana monasa</td>
+                        <td>Kosrae crake</td>
+                        <td align="right">1827</td>
+                        <td>Oceania</td>
+                        <td>Micronesia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Aplonis corvina </td>
+                        <td>Kosrae starling</td>
+                        <td align="right">1827</td>
+                        <td>Oceania</td>
+                        <td>Micronesia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Bonin grosbeak</td>
+                        <td align="right">1828</td>
+                        <td>Asia</td>
+                        <td>Japan </td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Mascarene parrot</td>
+                        <td align="right">1834</td>
+                        <td>Africa</td>
+                        <td>Reunion</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Delalande&#39;s coua</td>
+                        <td align="right">1834</td>
+                        <td>Africa</td>
+                        <td>Madagascar</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Moho apicalis</td>
+                        <td>O&#39;ahu &#39;o&#39;o</td>
+                        <td align="right">1837</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Hemignathus lucidus lucidus</td>
+                        <td>O&#39;ahu nukupu&#39;u</td>
+                        <td align="right">1837</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Leiocephalus herminieri</td>
+                        <td>Martinique curly-tailed lizard</td>
+                        <td align="right">1840</td>
+                        <td>North America</td>
+                        <td>Martinique</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Celestus occiduus</td>
+                        <td>Jamaica giant galliwasp</td>
+                        <td align="right">1840</td>
+                        <td>North America</td>
+                        <td>Jamaica</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Mauritius blue pigeon</td>
+                        <td align="right">1840</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Thinornis rossi</td>
+                        <td>Aucland Islands shore plover</td>
+                        <td align="right">1840</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Leiocephalus herminieri</td>
+                        <td>Martinique curly-tailed lizard</td>
+                        <td align="right">1840</td>
+                        <td>North America</td>
+                        <td>Martinique</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td> </td>
+                        <td>Rodrigues giant day gecko</td>
+                        <td align="right">1842</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Notomys macrotis</td>
+                        <td>Big-eared hopping mouse</td>
+                        <td align="right">1843</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Red-throated wood-rail</td>
+                        <td align="right">1843</td>
+                        <td>South America</td>
+                        <td>Peru</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Notomys mordax</td>
+                        <td>Darling Downs hopping mouse</td>
+                        <td align="right">1846</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Black-browed babbler</td>
+                        <td align="right">1848</td>
+                        <td>Asia</td>
+                        <td>Indonesia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Dromaius novaehollandiae diemenensis</td>
+                        <td>Tasmanian emu</td>
+                        <td align="right">1850</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Turquoise-throated puffleg</td>
+                        <td align="right">1850</td>
+                        <td>South America</td>
+                        <td>Colombia</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td> </td>
+                        <td>Charles Island tortoise</td>
+                        <td align="right">1850</td>
+                        <td>South America</td>
+                        <td>Ecuador</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td> </td>
+                        <td>Reunion giant tortoise</td>
+                        <td align="right">1850</td>
+                        <td>Africa</td>
+                        <td>Reunion</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Aplonis ulietensis</td>
+                        <td>Bay thrush</td>
+                        <td align="right">1850</td>
+                        <td>Oceania</td>
+                        <td>French Polynesia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Cyanoramphus zealandicus</td>
+                        <td>Black-fronted parakeet</td>
+                        <td align="right">1850</td>
+                        <td>Oceania</td>
+                        <td>French Polynesia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Prosobonia cancellata</td>
+                        <td>Christmas sandpiper</td>
+                        <td align="right">1850</td>
+                        <td>Oceania</td>
+                        <td>Kiribati</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Mauritius owl</td>
+                        <td align="right">1850</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Lesser Mascarene flying fox</td>
+                        <td align="right">1850</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Spectacled cormorant</td>
+                        <td align="right">1850</td>
+                        <td>Asia</td>
+                        <td>Russia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Nestor productus</td>
+                        <td>Norfolk kaka</td>
+                        <td align="right">1851</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Caloenas maculata</td>
+                        <td>Liverpool pigeon</td>
+                        <td align="right">1851</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Letitia&#39;s thorntail</td>
+                        <td align="right">1852</td>
+                        <td>South America</td>
+                        <td>Bolivia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Pinguinus impennis</td>
+                        <td>Great auk (lived in the cold North Atlantic Coasts)</td>
+                        <td align="right">1852</td>
+                        <td>Europe</td>
+                        <td>Iceland</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Pinguinus impennis</td>
+                        <td>Great auk (lived in the cold North Atlantic Coasts)</td>
+                        <td align="right">1852</td>
+                        <td>North America</td>
+                        <td>Canada</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Megalomys luciae</td>
+                        <td>Santa Lucian giant rice rat</td>
+                        <td align="right">1852</td>
+                        <td>North America</td>
+                        <td>Saint Lucia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Columba vitiensis godmanae</td>
+                        <td>White-throated pigeon</td>
+                        <td align="right">1853</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Pseudophilautus leucorhinus</td>
+                        <td> </td>
+                        <td align="right">1856</td>
+                        <td>Asia</td>
+                        <td>Sri Lanka</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Conilurus albipes</td>
+                        <td>White-footed rabbit-rat</td>
+                        <td align="right">1857</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Pseudomys gouldii</td>
+                        <td>Gould&#39;s mouse</td>
+                        <td align="right">1857</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Chaetoptila angustipluma</td>
+                        <td>Kioea</td>
+                        <td align="right">1859</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Gallicolumba norfolciensis</td>
+                        <td>Norfolk ground dove</td>
+                        <td align="right">1860</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Neovison macrodon</td>
+                        <td>Sea mink (lived in North America)</td>
+                        <td align="right">1860</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Alces alces caucasicus</td>
+                        <td>Caucasian moose (lived across Caucasus Mountains)</td>
+                        <td align="right">1860</td>
+                        <td>Asia</td>
+                        <td>Turkey</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Reunion starling</td>
+                        <td align="right">1860</td>
+                        <td>Africa</td>
+                        <td>Reunion</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Bourbon crested starling</td>
+                        <td align="right">1860</td>
+                        <td>Africa</td>
+                        <td>Reunion</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Myadestes woahensis</td>
+                        <td>Amaui</td>
+                        <td align="right">1860</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Siphonorhis americana</td>
+                        <td>Jamaican poorwill</td>
+                        <td align="right">1860</td>
+                        <td>North America</td>
+                        <td>Jamaica</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Pachyornis australis</td>
+                        <td>Crested moa</td>
+                        <td align="right">1860</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Pseudophilautus maia</td>
+                        <td> </td>
+                        <td align="right">1860</td>
+                        <td>Asia</td>
+                        <td>Sri Lanka</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Lesser Mascarene flying fox</td>
+                        <td align="right">1862</td>
+                        <td>Africa</td>
+                        <td>France</td>
+                        </tr>
+                        <tr>
+                        <td>Insect</td>
+                        <td> </td>
+                        <td>Mbashe River buff</td>
+                        <td align="right">1863</td>
+                        <td>Africa</td>
+                        <td>South Africa</td>
+                        </tr>
+                        <tr>
+                        <td>Insect</td>
+                        <td>Lycaena dispar dispar</td>
+                        <td>British large copper</td>
+                        <td align="right">1864</td>
+                        <td>Europe</td>
+                        <td>United Kingdom</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Pseudophilautus temporalis</td>
+                        <td> </td>
+                        <td align="right">1864</td>
+                        <td>Asia</td>
+                        <td>Sri Lanka</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Siau scops owl</td>
+                        <td align="right">1866</td>
+                        <td>Asia</td>
+                        <td>Indonesia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Cyanoramphus novaezelandiae subflavescenes</td>
+                        <td>Red-crowned parakeet</td>
+                        <td align="right">1869</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Pseudophilautus nanus</td>
+                        <td> </td>
+                        <td align="right">1869</td>
+                        <td>Asia</td>
+                        <td>Sri Lanka</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Pseudophilautus nasutus</td>
+                        <td> </td>
+                        <td align="right">1869</td>
+                        <td>Asia</td>
+                        <td>Sri Lanka</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Ara tricolor</td>
+                        <td>Cuban red macaw</td>
+                        <td align="right">1870</td>
+                        <td>North America</td>
+                        <td>Cuba</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Coenocorypha barrierensis</td>
+                        <td>North Island snipe</td>
+                        <td align="right">1870</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Chenonetta finschi</td>
+                        <td>Finsch&#39;s duck</td>
+                        <td align="right">1870</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Hoplodactylus delcourti</td>
+                        <td>Kawekaweau</td>
+                        <td align="right">1870</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Eudyptes chathamensis</td>
+                        <td>Chatham Islands penguin</td>
+                        <td align="right">1872</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Gallirallus dieffenbachii</td>
+                        <td>Dieffenbach&#39;s rail</td>
+                        <td align="right">1872</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Ixobrychus novaezelandiae</td>
+                        <td>New Zealand little bittern</td>
+                        <td align="right">1872</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Pseudophilautus oxyrhynchus</td>
+                        <td> </td>
+                        <td align="right">1872</td>
+                        <td>Asia</td>
+                        <td>Sri Lanka</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Pteropus brunneus</td>
+                        <td>Dusky flying fox</td>
+                        <td align="right">1874</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Pteropus pilosus</td>
+                        <td>Large Palau flying fox</td>
+                        <td align="right">1874</td>
+                        <td>Oceania</td>
+                        <td>Palau</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Potorous platyops</td>
+                        <td>Broad-faced potoroo</td>
+                        <td align="right">1875</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Newton&#39;s parakeet</td>
+                        <td align="right">1875</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Coturnix novaezelandidae</td>
+                        <td>New Zealand quail</td>
+                        <td align="right">1875</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Himalayan quail</td>
+                        <td align="right">1876</td>
+                        <td>Asia</td>
+                        <td>India</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Cape lion</td>
+                        <td align="right">1876</td>
+                        <td>Africa</td>
+                        <td>South Africa</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Pseudophilautus hypomelas</td>
+                        <td> </td>
+                        <td align="right">1876</td>
+                        <td>Asia</td>
+                        <td>Sri Lanka</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Pseudophilautus pardus</td>
+                        <td> </td>
+                        <td align="right">1876</td>
+                        <td>Asia</td>
+                        <td>Sri Lanka</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Falkland Island wolf</td>
+                        <td align="right">1876</td>
+                        <td>South America</td>
+                        <td>Falkland Islands [Islas Malvinas]</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Camptorhynchus labradorius</td>
+                        <td>Labrador duck (lived in North America)</td>
+                        <td align="right">1878</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Pterodroma caribbaea</td>
+                        <td>Jamaican petrel</td>
+                        <td align="right">1879</td>
+                        <td>North America</td>
+                        <td>Jamaica</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Oryzomys antillarum</td>
+                        <td>Jamaican rice rat</td>
+                        <td align="right">1879</td>
+                        <td>North America</td>
+                        <td>Jamaica</td>
+                        </tr>
+                        <tr>
+                        <td>Insect</td>
+                        <td> </td>
+                        <td>Morant&#39;s blue</td>
+                        <td align="right">1879</td>
+                        <td>Africa</td>
+                        <td>South Africa</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Chlorostilbon bracei</td>
+                        <td>Brace&#39;s emerald</td>
+                        <td align="right">1880</td>
+                        <td>North America</td>
+                        <td>Bahamas</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Atlas bear (lived across Atlas Mountains)</td>
+                        <td align="right">1880</td>
+                        <td>Africa</td>
+                        <td>Algeria</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td> </td>
+                        <td>Gunther&#39;s streamlined frog</td>
+                        <td align="right">1882</td>
+                        <td>Asia</td>
+                        <td>Sri Lanka</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Pseudophilautus extirpo</td>
+                        <td> </td>
+                        <td align="right">1882</td>
+                        <td>Asia</td>
+                        <td>Sri Lanka</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Porzana sandwichensis</td>
+                        <td>Hawaiian rail</td>
+                        <td align="right">1883</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Quagga</td>
+                        <td align="right">1883</td>
+                        <td>Africa</td>
+                        <td>South Africa</td>
+                        </tr>
+                        <tr>
+                        <td>Arachnid</td>
+                        <td>Tityus exstinctus</td>
+                        <td> </td>
+                        <td align="right">1884</td>
+                        <td>North America</td>
+                        <td>Martinique</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Seychelles parakeet</td>
+                        <td align="right">1886</td>
+                        <td>Africa</td>
+                        <td>Seychelles</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Pseudophilautus adspersus</td>
+                        <td> </td>
+                        <td align="right">1886</td>
+                        <td>Asia</td>
+                        <td>Sri Lanka</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Cervus canadensis canadiensis</td>
+                        <td>Eastern elk (lived in North America)</td>
+                        <td align="right">1887</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Ryukyu kingfisher</td>
+                        <td align="right">1887</td>
+                        <td>Asia</td>
+                        <td>Japan</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Uromys porculus</td>
+                        <td>Guadalcanal rat</td>
+                        <td align="right">1888</td>
+                        <td>Oceania</td>
+                        <td>Solomon Islands</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Lagorchestes leporides</td>
+                        <td>Estern hare-wallaby</td>
+                        <td align="right">1889</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Bonin nankeen night heron</td>
+                        <td align="right">1889</td>
+                        <td>Asia</td>
+                        <td>Japan</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Bonin wood pigeon</td>
+                        <td align="right">1889</td>
+                        <td>Asia</td>
+                        <td>Japan</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Hokkaido wolf</td>
+                        <td align="right">1889</td>
+                        <td>Asia</td>
+                        <td>Japan</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Hemignathus ellisianus lanaiensis</td>
+                        <td>Lana&#39;i &#39;akialoa</td>
+                        <td align="right">1890</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Romanogobio antipai</td>
+                        <td> </td>
+                        <td align="right">1890</td>
+                        <td>Europe</td>
+                        <td>Romania</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Coregonus restrictus</td>
+                        <td> </td>
+                        <td align="right">1890</td>
+                        <td>Europe</td>
+                        <td>Switzerland</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Rhodacanthis flaviceps</td>
+                        <td>Lesser koa finch</td>
+                        <td align="right">1891</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Sulu bleeding-heart</td>
+                        <td align="right">1891</td>
+                        <td>Asia</td>
+                        <td>Philippines</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Ciridops anna</td>
+                        <td>Ula-&#39;ai-hawane</td>
+                        <td align="right">1892</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Dendroscansor decurvirostris</td>
+                        <td>Long-billed wren</td>
+                        <td align="right">1892</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Capra pyrenaica lusitanica</td>
+                        <td>Portuguese ivex</td>
+                        <td align="right">1892</td>
+                        <td>Europe</td>
+                        <td>Portugal</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Moxostoma lacerum</td>
+                        <td>Harelip sucker</td>
+                        <td align="right">1893</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Red gazelle</td>
+                        <td align="right">1894</td>
+                        <td>Africa</td>
+                        <td>Algeria</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Chloridops kona</td>
+                        <td>Kona grosbeak</td>
+                        <td align="right">1894</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Insect</td>
+                        <td>Urania sloanus</td>
+                        <td>Sloane&#39;s Urania butterfly</td>
+                        <td align="right">1894</td>
+                        <td>North America</td>
+                        <td>Jamaica</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Xenicus lyalli</td>
+                        <td>Lyall&#39;s wren</td>
+                        <td align="right">1894</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Porphyrio mantelli</td>
+                        <td>North Island takahe</td>
+                        <td align="right">1894</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Bowdleria rufescens</td>
+                        <td>Chatham fernbird</td>
+                        <td align="right">1895</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Rhodacanthis palmeri</td>
+                        <td>Greater koa finch</td>
+                        <td align="right">1896</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Microtus pennsylvanicus nesophilus</td>
+                        <td>Gull Island vole</td>
+                        <td align="right">1897</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Oryzomys nelsoni</td>
+                        <td>Nelson&#39;s rice rat</td>
+                        <td align="right">1897</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Rattus nativitatis</td>
+                        <td>Bulldog rat</td>
+                        <td align="right">1898</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Drepanis pacifica</td>
+                        <td>Hawai&#39;i mamo</td>
+                        <td align="right">1898</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Oligoryzomys victus</td>
+                        <td>Saint Vincent pygmy rice rat</td>
+                        <td align="right">1898</td>
+                        <td>North America</td>
+                        <td>Saint Vincent and the Grenadines</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>One-striped opossum</td>
+                        <td align="right">1899</td>
+                        <td>South America</td>
+                        <td>Argentina</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Pseudophilautus halyi</td>
+                        <td> </td>
+                        <td align="right">1899</td>
+                        <td>Asia</td>
+                        <td>Sri Lanka</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Chondrostoma scodrense</td>
+                        <td> </td>
+                        <td align="right">1900</td>
+                        <td>Europe</td>
+                        <td>Albania</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Athene cunicularia amaura</td>
+                        <td>Antiguan burrowing owl</td>
+                        <td align="right">1900</td>
+                        <td>North America</td>
+                        <td>Antigua and Barbuda</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Athene cunicularia guadeloupensis</td>
+                        <td>Guadeloupe burrowing owl</td>
+                        <td align="right">1900</td>
+                        <td>North America</td>
+                        <td>Guadeloupe</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Porphyrio paepae</td>
+                        <td>Marquesas swamphen</td>
+                        <td align="right">1900</td>
+                        <td>Oceania</td>
+                        <td>French Polynesia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Gallirallus pacificus</td>
+                        <td>Tahitian red-billed rail</td>
+                        <td align="right">1900</td>
+                        <td>Oceania</td>
+                        <td>French Polynesia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Caracara lutosa</td>
+                        <td>Guadalupe caracara</td>
+                        <td align="right">1900</td>
+                        <td>North America</td>
+                        <td>Guadeloupe</td>
+                        </tr>
+                        <tr>
+                        <td>Insect</td>
+                        <td>Agrotis photophila</td>
+                        <td>Light-loving noctuid moth</td>
+                        <td align="right">1900</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Tropidophis bucculentus</td>
+                        <td>Navassa Island dwarf boa</td>
+                        <td align="right">1900</td>
+                        <td>North America</td>
+                        <td>Navassa Island</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Cyclura cornuta onchiopsis</td>
+                        <td>Navassa Island iguana</td>
+                        <td align="right">1900</td>
+                        <td>North America</td>
+                        <td>Navassa Island</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Cabalus modestus</td>
+                        <td>Chatham Islands rail</td>
+                        <td align="right">1900</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Diaphorapteryx hawkinsi</td>
+                        <td>Hawkins&#39;s rail</td>
+                        <td align="right">1900</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Corvus moriorum </td>
+                        <td>Chatham raven</td>
+                        <td align="right">1900</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Cape warthog</td>
+                        <td align="right">1900</td>
+                        <td>Africa</td>
+                        <td>South Africa</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Tachygia microlepis</td>
+                        <td>Tonga ground skink</td>
+                        <td align="right">1900</td>
+                        <td>Oceania</td>
+                        <td>Tonga</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Tristan moorhen</td>
+                        <td align="right">1900</td>
+                        <td>Africa</td>
+                        <td>Saint Helena</td>
+                        </tr>
+                        <tr>
+                        <td>Crustacean</td>
+                        <td>Pacifastacus nigrescens</td>
+                        <td>Sooty crayfish</td>
+                        <td align="right">1900</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Insect</td>
+                        <td>Coleophora leucochrysella</td>
+                        <td>Chestnut casebearer moth</td>
+                        <td align="right">1900</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Aratinga labati </td>
+                        <td>Guadeloupe parakeet</td>
+                        <td align="right">1900</td>
+                        <td>North America</td>
+                        <td>Guadeloupe</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Hemiphaga novaeseelandiae spadicea</td>
+                        <td>New Zealand pigeon</td>
+                        <td align="right">1901</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Notomys longicaudatus</td>
+                        <td>Long-tailed hopping mouse</td>
+                        <td align="right">1901</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Hemignathus sagittirostris</td>
+                        <td>Greater &#39;amakihi</td>
+                        <td align="right">1901</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Insect</td>
+                        <td>Melanoplus spretus</td>
+                        <td>Rocky Mountain locust (lived in North America)</td>
+                        <td align="right">1902</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Mergus australis</td>
+                        <td>New Zealand merganser</td>
+                        <td align="right">1902</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Megalomys desmarestii</td>
+                        <td>Antillean giant rice rat</td>
+                        <td align="right">1902</td>
+                        <td>North America</td>
+                        <td>Martinique</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Rattus macleari</td>
+                        <td>Maclear&#39;s rat</td>
+                        <td align="right">1903</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Oncorhynchus clarki macdonald</td>
+                        <td>Yellowfin cutthroat trout</td>
+                        <td align="right">1903</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Vulpes macrotis macrotis</td>
+                        <td>Southern California kit fox</td>
+                        <td align="right">1903</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Moho bishopi</td>
+                        <td>Bishop&#39;s &#39;o&#39;o</td>
+                        <td align="right">1904</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Microgoura meeki</td>
+                        <td>Choiseul pigeon</td>
+                        <td align="right">1904</td>
+                        <td>Oceania</td>
+                        <td>Solomon Islands</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Salvelinus neocomensis</td>
+                        <td> </td>
+                        <td align="right">1904</td>
+                        <td>Europe</td>
+                        <td>Switzerland</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Honshu wolf</td>
+                        <td align="right">1905</td>
+                        <td>Asia</td>
+                        <td>Japan</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Sorex ornatus juncensis</td>
+                        <td>Tule shrew</td>
+                        <td align="right">1905</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Anthornis melanocephala</td>
+                        <td>Chatham bellbird</td>
+                        <td align="right">1906</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Cervus canadensis merriami</td>
+                        <td>Merriam&#39;s elk</td>
+                        <td align="right">1906</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Bogota sunangel</td>
+                        <td align="right">1907</td>
+                        <td>South America</td>
+                        <td>Colombia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Drepanis funerea</td>
+                        <td>Black mamo</td>
+                        <td align="right">1907</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Heteralocha acutirostris</td>
+                        <td>Huia</td>
+                        <td align="right">1907</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Nyctimene sanctacrucis</td>
+                        <td>Nendo tube-nosed fruit bat</td>
+                        <td align="right">1907</td>
+                        <td>Oceania</td>
+                        <td>Solomon Islands</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>De Winton&#39;s golden mole</td>
+                        <td align="right">1907</td>
+                        <td>Africa</td>
+                        <td>South Africa</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Dasyornis broadbenti litoralis</td>
+                        <td>Rufous bristlebird </td>
+                        <td align="right">1908</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Colombian grebe</td>
+                        <td align="right">1908</td>
+                        <td>South America</td>
+                        <td>Chile</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Equus ferus ferus</td>
+                        <td>Tarpan</td>
+                        <td align="right">1909</td>
+                        <td>Europe</td>
+                        <td>Russia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Drymodes superciliaris colcloughi</td>
+                        <td>Roper River scrub-robin</td>
+                        <td align="right">1910</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Quiscalus palustris</td>
+                        <td>Slender-billed grackle</td>
+                        <td align="right">1910</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Peruvian viscacha</td>
+                        <td align="right">1910</td>
+                        <td>South America</td>
+                        <td>Peru</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Canis lupus beothucu</td>
+                        <td>Newfoundland wolf</td>
+                        <td align="right">1911</td>
+                        <td>North America</td>
+                        <td>Canada</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Oceanodroma macrodactyla</td>
+                        <td>Guadalupe storm petrel</td>
+                        <td align="right">1912</td>
+                        <td>North America</td>
+                        <td>Guadeloupe</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td> </td>
+                        <td>Eastwood&#39;s long-tailed seps</td>
+                        <td align="right">1912</td>
+                        <td>Africa</td>
+                        <td>South Africa</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Sceloglaux albifacies</td>
+                        <td>Laughing owl</td>
+                        <td align="right">1914</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Ectopistes migratorius</td>
+                        <td>Passenger pigeon (lived in North America)</td>
+                        <td align="right">1914</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td> </td>
+                        <td>Rodrigues day gecko</td>
+                        <td align="right">1917</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Leiocephalus eremitus</td>
+                        <td>Navassa curly-tailed lizard</td>
+                        <td align="right">1917</td>
+                        <td>North America</td>
+                        <td>Navassa Island</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Dysmorodrepanis munroi</td>
+                        <td>Lana&#39;i hookbill</td>
+                        <td align="right">1918</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Ruck&#39;s blue flycatcher</td>
+                        <td align="right">1918</td>
+                        <td>Asia</td>
+                        <td>Indonesia </td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Conuropsis carolinensis</td>
+                        <td>Carolina parakeet (lived in North America)</td>
+                        <td align="right">1918</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Canis lupus bernardi</td>
+                        <td>Banks Island wolf</td>
+                        <td align="right">1920</td>
+                        <td>North America</td>
+                        <td>Canada</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Acrocephalus familiaris familiaris</td>
+                        <td>Laysan millerbird</td>
+                        <td align="right">1920</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Ptilinopus mercierii</td>
+                        <td>Red-moustached fruit dove</td>
+                        <td align="right">1922</td>
+                        <td>Oceania</td>
+                        <td>French Polynesia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Prosobonia leucoptera</td>
+                        <td>Tahiti sandpiper</td>
+                        <td align="right">1922</td>
+                        <td>Oceania</td>
+                        <td>French Polynesia</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Ursus arctos californicus</td>
+                        <td>California golden bear</td>
+                        <td align="right">1922</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Aplonis fusca</td>
+                        <td>Tasman starling</td>
+                        <td align="right">1923</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Zosterops strenuus</td>
+                        <td>Robust white-eye</td>
+                        <td align="right">1923</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Himatione fraithii</td>
+                        <td>Laysan honeycreeper</td>
+                        <td align="right">1923</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Rhipidura cervina</td>
+                        <td>Lord Howe fantail</td>
+                        <td align="right">1924</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Turdus poliocephalus vinitinctus</td>
+                        <td>Lord Howe Island thrush</td>
+                        <td align="right">1924</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Madeiran wood pigeon</td>
+                        <td align="right">1924</td>
+                        <td>Africa</td>
+                        <td>Madeira</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Indian Javan rhinoceros</td>
+                        <td align="right">1925</td>
+                        <td>Asia</td>
+                        <td>India</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Bison bonasus caucasicus</td>
+                        <td>Caucasian wisent</td>
+                        <td align="right">1925</td>
+                        <td>Europe</td>
+                        <td>Russia</td>
+                        </tr>
+                        <tr>
+                        <td>Insect</td>
+                        <td>Levuana irridescens</td>
+                        <td>Levuana moth</td>
+                        <td align="right">1925</td>
+                        <td>Oceania</td>
+                        <td>Fiji</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Bubal hartebeest (lived North of the Sahara Desert)</td>
+                        <td align="right">1925</td>
+                        <td>Africa</td>
+                        <td>Morocco</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Anthony&#39;s woodrat</td>
+                        <td align="right">1926</td>
+                        <td>North America</td>
+                        <td>Mexico </td>
+                        </tr>
+                        <tr>
+                        <td>Insect</td>
+                        <td>Pentagenia robusta</td>
+                        <td>Robust burrowing mayfly</td>
+                        <td align="right">1926</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Psephotus pulcherrimus</td>
+                        <td>Paradis parrot</td>
+                        <td align="right">1927</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Ethiopian amphibious rat</td>
+                        <td align="right">1927</td>
+                        <td>Africa</td>
+                        <td>Ethiopia</td>
+                        </tr>
+                        <tr>
+                        <td>Insect</td>
+                        <td>Agrotis crinigera</td>
+                        <td>Poko noctuid moth</td>
+                        <td align="right">1927</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Gallicolumba salamonis</td>
+                        <td>Thick-billed ground dove</td>
+                        <td align="right">1927</td>
+                        <td>Oceania</td>
+                        <td>Solomon Islands</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Pseudophilautus rugatus</td>
+                        <td> </td>
+                        <td align="right">1927</td>
+                        <td>Asia</td>
+                        <td>Sri Lanka</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Pseudophilautus zimmeri</td>
+                        <td> </td>
+                        <td align="right">1927</td>
+                        <td>Asia</td>
+                        <td>Sri Lanka</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Gerygone insularis</td>
+                        <td>Lord Howe gerygone</td>
+                        <td align="right">1928</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Ameiva cineracea</td>
+                        <td>Guadeloupe ameiva</td>
+                        <td align="right">1928</td>
+                        <td>North America</td>
+                        <td>Guadeloupe</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Cottus echinatus</td>
+                        <td>Utah Lake sculpin</td>
+                        <td align="right">1928</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Vaurie&#39;s nightjar</td>
+                        <td align="right">1929</td>
+                        <td>Asia</td>
+                        <td>China</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Darwin&#39;s rice rat</td>
+                        <td align="right">1929</td>
+                        <td>South America</td>
+                        <td>Ecuador</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Bering cackling goose</td>
+                        <td align="right">1929</td>
+                        <td>Asia</td>
+                        <td>Russia</td>
+                        </tr>
+                        <tr>
+                        <td>Amphibian</td>
+                        <td> </td>
+                        <td>Spiny-knee leaf frog</td>
+                        <td align="right">1930</td>
+                        <td>South America</td>
+                        <td>Brazil</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td> </td>
+                        <td>Cape Verde giant skink</td>
+                        <td align="right">1930</td>
+                        <td>Africa</td>
+                        <td>Cape Verde</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Mukojima white-eye</td>
+                        <td align="right">1930</td>
+                        <td>Asia</td>
+                        <td>Japan </td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Mus musculus muralis</td>
+                        <td>St Kilda house mouse</td>
+                        <td align="right">1930</td>
+                        <td>Europe</td>
+                        <td>United Kingdom</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Oncorhynchus clarki alvordensis</td>
+                        <td>Alvord cutthroat trout</td>
+                        <td align="right">1930</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Salvelinus agassizi</td>
+                        <td>Silver trout</td>
+                        <td align="right">1930</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Insect</td>
+                        <td>Mecodema punctellum</td>
+                        <td> </td>
+                        <td align="right">1931</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Rallus pectoralis clelandi</td>
+                        <td>Lewin&#39;s water rail</td>
+                        <td align="right">1932</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Neotoma bunkeri</td>
+                        <td>Bunker&#39;s woodrat</td>
+                        <td align="right">1932</td>
+                        <td>North America</td>
+                        <td>Mexico </td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Tympanuchus cupido cupido</td>
+                        <td>Heath hen</td>
+                        <td align="right">1932</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Pseudophilautus dimbullae</td>
+                        <td> </td>
+                        <td align="right">1933</td>
+                        <td>Asia</td>
+                        <td>Sri Lanka</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Pseudophilautus eximius</td>
+                        <td> </td>
+                        <td align="right">1933</td>
+                        <td>Asia</td>
+                        <td>Sri Lanka</td>
+                        </tr>
+                        <tr>
+                        <td>Crustacean</td>
+                        <td>Syncaris pasadenae</td>
+                        <td>Pasadena freshwater shrimp</td>
+                        <td align="right">1933</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Amphibian</td>
+                        <td> </td>
+                        <td>Atelopus vogli</td>
+                        <td align="right">1933</td>
+                        <td>South America</td>
+                        <td>Venezuela</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Moho nobilis</td>
+                        <td>Hawai&#39;i &#39;o&#39;o</td>
+                        <td align="right">1934</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Caloprymnus campestris</td>
+                        <td>Desert rat-kangaroo</td>
+                        <td align="right">1935</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Lagorchestes asomatus</td>
+                        <td>Central hare-wallaby</td>
+                        <td align="right">1935</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Canis lupus youngi</td>
+                        <td>Southern Rocky Mountains wolf</td>
+                        <td align="right">1935</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Thylacinus cynocephalus</td>
+                        <td>Thylacine</td>
+                        <td align="right">1936</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Ryukyu wood pigeon</td>
+                        <td align="right">1936</td>
+                        <td>Asia</td>
+                        <td>Japan </td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Mesocapromys nanus</td>
+                        <td>Dwarf hutia</td>
+                        <td align="right">1937</td>
+                        <td>North America</td>
+                        <td>Cuba</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Bali tiger</td>
+                        <td align="right">1937</td>
+                        <td>Asia</td>
+                        <td>Indonesia</td>
+                        </tr>
+                        <tr>
+                        <td>Insect</td>
+                        <td>Hydropsyche tobiasi</td>
+                        <td>Tobias&#39; caddisfly</td>
+                        <td align="right">1938</td>
+                        <td>Europe</td>
+                        <td>Germany</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Schomburgk&#39;s deer</td>
+                        <td align="right">1938</td>
+                        <td>Asia</td>
+                        <td>Thailand</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Rhinichthys osculus reliquus</td>
+                        <td>Grass Valley speckled dace</td>
+                        <td align="right">1938</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Lepidomeda altivelis</td>
+                        <td>Pahranagat spinedace</td>
+                        <td align="right">1938</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Eskimo curlew</td>
+                        <td align="right">1939</td>
+                        <td>South America</td>
+                        <td>Brazil</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Coregonus gutturosus</td>
+                        <td>Lake Constance whitefish (lived in Lake Constance)</td>
+                        <td align="right">1940</td>
+                        <td>Europe</td>
+                        <td>Austria</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Coregonus oxyrinchus</td>
+                        <td>Houting</td>
+                        <td align="right">1940</td>
+                        <td>Europe</td>
+                        <td>Belgium</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Canis lupus fuscus</td>
+                        <td>Cascade mountain wolf (lived in North America)</td>
+                        <td align="right">1940</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Amazilia cyanifrons</td>
+                        <td>Indigo-capped hummingbird</td>
+                        <td align="right">1940</td>
+                        <td>North America</td>
+                        <td>Costa Rica</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Indefatigable Galapagos mouse</td>
+                        <td align="right">1940</td>
+                        <td>South America</td>
+                        <td>Ecuador </td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Pomarea nukuhivae</td>
+                        <td>Nuku Hiva monarch</td>
+                        <td align="right">1940</td>
+                        <td>Oceania</td>
+                        <td>French Polynesia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Hemignathus obscurus</td>
+                        <td>Hawai&#39;i &#39;akialoa</td>
+                        <td align="right">1940</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Hemignathus ellisianus ellisanus</td>
+                        <td>O&#39;ahu &#39;akialoa</td>
+                        <td align="right">1940</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Javan lapwing</td>
+                        <td align="right">1940</td>
+                        <td>Asia</td>
+                        <td>Indonesia</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td> </td>
+                        <td>Titicaca Orestias</td>
+                        <td align="right">1940</td>
+                        <td>South America</td>
+                        <td>Peru</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td> </td>
+                        <td>Salmo pallaryi</td>
+                        <td align="right">1940</td>
+                        <td>Africa</td>
+                        <td>Morocco</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Prototroctes oxyrhynchus</td>
+                        <td>New Zealand grayling</td>
+                        <td align="right">1940</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Gallotia simonyi simonyi</td>
+                        <td>Roque Chico de Salmor giant lizard</td>
+                        <td align="right">1940</td>
+                        <td>Europe</td>
+                        <td>Spain</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Canary Islands oystercatcher</td>
+                        <td align="right">1940</td>
+                        <td>Europe</td>
+                        <td>Spain </td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Lalage leucopyga leucopyga</td>
+                        <td>Norfolk triller</td>
+                        <td align="right">1942</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Zuniga&#39;s dark rice rat</td>
+                        <td align="right">1942</td>
+                        <td>South America</td>
+                        <td>Peru</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Macropus greyi</td>
+                        <td>Toolache wallaby</td>
+                        <td align="right">1943</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Insect</td>
+                        <td>Glaucopsyche xerces</td>
+                        <td>Xerces blue butterfly</td>
+                        <td align="right">1943</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Porzana palmeri</td>
+                        <td>Laysan rail</td>
+                        <td align="right">1944</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Gallirallus wakensis</td>
+                        <td>Wake Island rail</td>
+                        <td align="right">1945</td>
+                        <td>Oceania</td>
+                        <td>Wake Island</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Pseudophilautus zal</td>
+                        <td> </td>
+                        <td align="right">1947</td>
+                        <td>Asia</td>
+                        <td>Sri Lanka</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Peromyscus mekisturus</td>
+                        <td>Puebla deer mouse</td>
+                        <td align="right">1948</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Empetrichthys merriami</td>
+                        <td>Ash Meadows killifish</td>
+                        <td align="right">1948</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Cyprus dipper</td>
+                        <td align="right">1950</td>
+                        <td>Asia</td>
+                        <td>Cyprus</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Corvus corax</td>
+                        <td>Pied raven</td>
+                        <td align="right">1950</td>
+                        <td>Europe</td>
+                        <td>Denmark</td>
+                        </tr>
+                        <tr>
+                        <td>Insect</td>
+                        <td>Plebejus argus masseyi</td>
+                        <td>Silver-studded blue subsp. masseyi</td>
+                        <td align="right">1950</td>
+                        <td>Europe</td>
+                        <td>United Kingdom</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Coregonus fera</td>
+                        <td> </td>
+                        <td align="right">1950</td>
+                        <td>Europe</td>
+                        <td>France</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Coregonus hiemalis</td>
+                        <td>Gravenche</td>
+                        <td align="right">1950</td>
+                        <td>Europe</td>
+                        <td>France</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Neotoma martinensis</td>
+                        <td>San Martin Island woodrat</td>
+                        <td align="right">1950</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Podarcis lilfordi rodriquezi</td>
+                        <td>Ratas Island lizard</td>
+                        <td align="right">1950</td>
+                        <td>Europe</td>
+                        <td>Spain</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Turdus ravidus</td>
+                        <td>Grand Cayman thrush</td>
+                        <td align="right">1950</td>
+                        <td>North America</td>
+                        <td>Cayman Islands</td>
+                        </tr>
+                        <tr>
+                        <td>Crustacean</td>
+                        <td>Afrocyclops pauliani</td>
+                        <td> </td>
+                        <td align="right">1951</td>
+                        <td>Africa</td>
+                        <td>Madagascar</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Queen of Sheba&#39;s gazelle</td>
+                        <td align="right">1951</td>
+                        <td>Asia</td>
+                        <td>Yemen</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Coregonus johannae</td>
+                        <td>Deepwater cisco (lived in North America)</td>
+                        <td align="right">1952</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Monachus tropicalis</td>
+                        <td>Caribbean monk seal (live in Caribbean Sea)</td>
+                        <td align="right">1952</td>
+                        <td>North America</td>
+                        <td>Jamaica</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Niceforo&#39;s pintail</td>
+                        <td align="right">1952</td>
+                        <td>South America</td>
+                        <td>Colombia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Negros fruit dove</td>
+                        <td align="right">1953</td>
+                        <td>Asia</td>
+                        <td>Philippines</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Ilin Island Cloudrunner</td>
+                        <td align="right">1953</td>
+                        <td>Asia</td>
+                        <td>Philippines</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Gallinula silvestris</td>
+                        <td>Makira woodhen</td>
+                        <td align="right">1953</td>
+                        <td>Oceania</td>
+                        <td>Solomon Islands</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Characodon garmani</td>
+                        <td>Parras characodon</td>
+                        <td align="right">1953</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Tympanuchus phasianellus hueyi</td>
+                        <td>New Mexico Sharp-tailed Grouse</td>
+                        <td align="right">1954</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Turnagra tanagra</td>
+                        <td>North Island piopio</td>
+                        <td align="right">1955</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Oligosoma gracilicorpus</td>
+                        <td>Narrow-bodied skink</td>
+                        <td align="right">1955</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Geocapromys thoracatus</td>
+                        <td>Little Swan Island hutia</td>
+                        <td align="right">1955</td>
+                        <td>North America</td>
+                        <td>Swan Islands</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Geomys pinetis goffi</td>
+                        <td>Goff&#39;s pocket gopher</td>
+                        <td align="right">1955</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Onychogalea lunata</td>
+                        <td>Crescent nail-tail wallaby</td>
+                        <td align="right">1956</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Pseudomys glaucus</td>
+                        <td>Blue-gray mouse</td>
+                        <td align="right">1956</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Campephilus imperialis</td>
+                        <td>Imperial woodpecker</td>
+                        <td align="right">1956</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Taichira antpitta</td>
+                        <td align="right">1956</td>
+                        <td>South America</td>
+                        <td>Venezuela</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Darwin&#39;s ground finch</td>
+                        <td align="right">1957</td>
+                        <td>South America</td>
+                        <td>Ecuador </td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Chirostoma charari</td>
+                        <td>Least silverside</td>
+                        <td align="right">1957</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Noturus trautmani</td>
+                        <td>Scioto madtom</td>
+                        <td align="right">1957</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Peromyscus polionotus decoloratus</td>
+                        <td>Pallid beach mouse</td>
+                        <td align="right">1959</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Ninox novaeseelandiae albaria</td>
+                        <td>Lord Howe boobook</td>
+                        <td align="right">1960</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Chaeropus ecaudatus</td>
+                        <td>Pig-footed bandicoot</td>
+                        <td align="right">1960</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Macrotis leucura</td>
+                        <td>Lesser bilby</td>
+                        <td align="right">1960</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Perameles eremiana</td>
+                        <td>Desert bandicoot</td>
+                        <td align="right">1960</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Pink-headed duck (lived in the Gangetic plains)</td>
+                        <td align="right">1960</td>
+                        <td>Asia</td>
+                        <td>Bangladesh</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Candango mouse</td>
+                        <td align="right">1960</td>
+                        <td>South America</td>
+                        <td>Brazil</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Gila crassicauda</td>
+                        <td>Thicktail chub</td>
+                        <td align="right">1960</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Leucopeza semperi</td>
+                        <td>Semper&#39;s warbler</td>
+                        <td align="right">1961</td>
+                        <td>North America</td>
+                        <td>Saint Lucia</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Notropis aulidion</td>
+                        <td>Durango shiner</td>
+                        <td align="right">1961</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Red-bellied gracile opossum</td>
+                        <td align="right">1962</td>
+                        <td>South America</td>
+                        <td>Argentina</td>
+                        </tr>
+                        <tr>
+                        <td>Amphibian</td>
+                        <td> </td>
+                        <td>Du Toit&#39;s torrent frog</td>
+                        <td align="right">1962</td>
+                        <td>Africa</td>
+                        <td>Kenya</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Ptychochromis onilahy</td>
+                        <td> </td>
+                        <td align="right">1962</td>
+                        <td>Africa</td>
+                        <td>Madagascar</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Gloomy tube-nosed bat</td>
+                        <td align="right">1962</td>
+                        <td>Asia</td>
+                        <td>Japan</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Paroreomyza flammea </td>
+                        <td>Moloka&#39;i creeper</td>
+                        <td align="right">1963</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Turnagra capensis</td>
+                        <td>South Island piopio</td>
+                        <td align="right">1963</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Crustacean</td>
+                        <td>Hemigrapsus estellinensis </td>
+                        <td> </td>
+                        <td align="right">1963</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Procyon lotor gloveralleni</td>
+                        <td>Barbados raccoon</td>
+                        <td align="right">1964</td>
+                        <td>North America</td>
+                        <td>Barbados</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Notropis simus simus</td>
+                        <td>Rio Grande bluntnose shiner</td>
+                        <td align="right">1964</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Ursus arctos nelsoni</td>
+                        <td>Mexican grizzly bear</td>
+                        <td align="right">1964</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Coenocorypha iredalei</td>
+                        <td>South Island snipe</td>
+                        <td align="right">1964</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Insect</td>
+                        <td> </td>
+                        <td>Saint Helena darter</td>
+                        <td align="right">1964</td>
+                        <td>Africa</td>
+                        <td>Saint Helena</td>
+                        </tr>
+                        <tr>
+                        <td>Amphibian</td>
+                        <td>Plethodon ainsworthi</td>
+                        <td>Ainsworth&#39;s salamander</td>
+                        <td align="right">1964</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Akialoa stejnegeri</td>
+                        <td>Kaua&#39;i &#39;akialoa</td>
+                        <td align="right">1965</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Podarcis sicula sanctistephani</td>
+                        <td>Santo Stefano lizard</td>
+                        <td align="right">1965</td>
+                        <td>Europe</td>
+                        <td>Italy</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Mystacina robusta</td>
+                        <td>Greater short-tailed bat</td>
+                        <td align="right">1965</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Arabian ostrich (lived in the Middle East)</td>
+                        <td align="right">1966</td>
+                        <td>Asia</td>
+                        <td>Saudi Arabia</td>
+                        </tr>
+                        <tr>
+                        <td>Insect</td>
+                        <td> </td>
+                        <td>Saint Helena giant earwig</td>
+                        <td align="right">1967</td>
+                        <td>Africa</td>
+                        <td>Saint Helena</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Pteropus pilosus</td>
+                        <td>Guam flying fox</td>
+                        <td align="right">1967</td>
+                        <td>Oceania</td>
+                        <td>Guam</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Coregonus nigripinnis</td>
+                        <td>Blackfin cisco</td>
+                        <td align="right">1969</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Glaucous macaw (lived across South America)</td>
+                        <td align="right">1970</td>
+                        <td>South America</td>
+                        <td>Argentina</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Colombian grebe</td>
+                        <td align="right">1970</td>
+                        <td>South America</td>
+                        <td>Colombia</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Coregonus bezola</td>
+                        <td> </td>
+                        <td align="right">1970</td>
+                        <td>Europe</td>
+                        <td>France</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Micrathene whitneyi graysoni</td>
+                        <td>Socorro elf owl</td>
+                        <td align="right">1970</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Gasterosteus crenobiontus</td>
+                        <td>Technirghiol stickleback</td>
+                        <td align="right">1970</td>
+                        <td>Europe</td>
+                        <td>Romania</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Uromys imperator</td>
+                        <td>Emperor rat</td>
+                        <td align="right">1970</td>
+                        <td>Oceania</td>
+                        <td>Solomon Islands</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Thomomys mazama tacomensis</td>
+                        <td>Tacoma pocket gopher</td>
+                        <td align="right">1970</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Antioquia brush finch</td>
+                        <td align="right">1971</td>
+                        <td>South America</td>
+                        <td>Colombia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Catanduanes bleeding heart</td>
+                        <td align="right">1971</td>
+                        <td>Asia</td>
+                        <td>Philippines</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Xenicus longipes </td>
+                        <td>Bush wren</td>
+                        <td align="right">1972</td>
+                        <td>Oceania</td>
+                        <td>New Zealand</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Nesoclopeus peocilopterus</td>
+                        <td>Bar-winged rail</td>
+                        <td align="right">1973</td>
+                        <td>Oceania</td>
+                        <td>Fiji</td>
+                        </tr>
+                        <tr>
+                        <td>Amphibian</td>
+                        <td>Eleutherodactylus karlschmidti</td>
+                        <td>Web-footed coqui</td>
+                        <td align="right">1974</td>
+                        <td>North America</td>
+                        <td>Puerto Rico</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Japanese sea lion</td>
+                        <td align="right">1974</td>
+                        <td>Asia</td>
+                        <td>Japan</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Anas oustaleti</td>
+                        <td>Mariana mallard</td>
+                        <td align="right">1974</td>
+                        <td>Oceania</td>
+                        <td>Northern Mariana Islands</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Turdus poliocephalus poliocephalus</td>
+                        <td>Norfolk thrush</td>
+                        <td align="right">1975</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Coregonus alpenae</td>
+                        <td>Longjaw cisco</td>
+                        <td align="right">1975</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td> </td>
+                        <td>Acanthobrama hulensis</td>
+                        <td align="right">1975</td>
+                        <td>Asia</td>
+                        <td>Israel</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td> </td>
+                        <td>Round Island burrowing boa</td>
+                        <td align="right">1975</td>
+                        <td>Africa</td>
+                        <td>Mauritius</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Notropis orca</td>
+                        <td>Phantom shiner</td>
+                        <td align="right">1975</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Wimmer&#39;s shrew</td>
+                        <td align="right">1976</td>
+                        <td>Africa</td>
+                        <td>Cote d&#39;Ivoire</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Pomarea fluxa</td>
+                        <td>Eiao monarch</td>
+                        <td align="right">1977</td>
+                        <td>Oceania</td>
+                        <td>French Polynesia</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td> </td>
+                        <td>Siamese flat-barbelled catfish</td>
+                        <td align="right">1977</td>
+                        <td>Asia</td>
+                        <td>Thailand</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Xiphosurus roosevelti</td>
+                        <td>Culebra Island giant anole</td>
+                        <td align="right">1978</td>
+                        <td>North America</td>
+                        <td>Puerto Rico</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Mesocapromys sanfelipensis</td>
+                        <td>San Felipe hutia</td>
+                        <td align="right">1978</td>
+                        <td>North America</td>
+                        <td>Cuba</td>
+                        </tr>
+                        <tr>
+                        <td>Amphibian</td>
+                        <td>Taudactylus diurnus</td>
+                        <td>Southern day frog</td>
+                        <td align="right">1979</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td> </td>
+                        <td>Yunnan lake newt</td>
+                        <td align="right">1979</td>
+                        <td>Asia</td>
+                        <td>China</td>
+                        </tr>
+                        <tr>
+                        <td>Insect</td>
+                        <td>Maculinea arion eutyphron</td>
+                        <td>British large blue</td>
+                        <td align="right">1979</td>
+                        <td>Europe</td>
+                        <td>United Kingdom</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Japanese river otter</td>
+                        <td align="right">1979</td>
+                        <td>Asia</td>
+                        <td>Japan</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Cyprinodon nevadensis calidae</td>
+                        <td>Tecopa pupfish</td>
+                        <td align="right">1979</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Zosterops albogularis</td>
+                        <td>White-chested white-eye</td>
+                        <td align="right">1980</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Amphibian</td>
+                        <td> </td>
+                        <td>Chile Darwin&#39;s frog</td>
+                        <td align="right">1980</td>
+                        <td>South America</td>
+                        <td>Chile</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Javan tiger</td>
+                        <td align="right">1980</td>
+                        <td>Asia</td>
+                        <td>Indonesia</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td> </td>
+                        <td>Tristramella intermedia</td>
+                        <td align="right">1980</td>
+                        <td>Asia</td>
+                        <td>Israel</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td> </td>
+                        <td>Aplocheilichthys sp. nov. &#39;Naivasha</td>
+                        <td align="right">1980</td>
+                        <td>Africa</td>
+                        <td>Kenya</td>
+                        </tr>
+                        <tr>
+                        <td>Insect</td>
+                        <td>Pieris brassicae wollastoni</td>
+                        <td>Madeiran large white</td>
+                        <td align="right">1980</td>
+                        <td>Europe</td>
+                        <td>Portugal</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>White-eyed river martin</td>
+                        <td align="right">1980</td>
+                        <td>Asia</td>
+                        <td>Thailand</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Panthera tigris virgata</td>
+                        <td>Caspian tiger (lived from Turkey to China along Causcasus Mountains)</td>
+                        <td align="right">1980</td>
+                        <td>Asia</td>
+                        <td>Turkey</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Pogonichthys ciscoides</td>
+                        <td>Clear Lake splittail</td>
+                        <td align="right">1980</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Gila bicolor isolata</td>
+                        <td>Independence Valley tui chub</td>
+                        <td align="right">1980</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Numenius borealis</td>
+                        <td>Eskimo curlew</td>
+                        <td align="right">1981</td>
+                        <td>North America</td>
+                        <td>Canada</td>
+                        </tr>
+                        <tr>
+                        <td>Amphibian</td>
+                        <td>Rheobatrachus silus</td>
+                        <td>Gastric-brooding frog</td>
+                        <td align="right">1981</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Amphibian</td>
+                        <td>Eleutherodactylus jasperi</td>
+                        <td>Golden coqui</td>
+                        <td align="right">1981</td>
+                        <td>North America</td>
+                        <td>Puerto Rico</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Sander vitreus glaucus</td>
+                        <td>Blue walleye</td>
+                        <td align="right">1983</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Evarra tlahuacensis</td>
+                        <td>Endorheic chub</td>
+                        <td align="right">1983</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Evarra bustamantei</td>
+                        <td>Mexican dace</td>
+                        <td align="right">1983</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Evarra eigenmanni</td>
+                        <td>Plateau chub</td>
+                        <td align="right">1983</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Aldabra brush-warbler</td>
+                        <td align="right">1983</td>
+                        <td>Africa</td>
+                        <td>Seychelles</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Myiagra freycineti</td>
+                        <td>Guam flycatcher</td>
+                        <td align="right">1983</td>
+                        <td>Oceania</td>
+                        <td>Guam</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Gambusia georgei</td>
+                        <td>San Marcos gambusia</td>
+                        <td align="right">1983</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Amphibian</td>
+                        <td>Rheobatrachus vitellinus</td>
+                        <td>Eungella gastric-brooding frog</td>
+                        <td align="right">1985</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Coregonus reighardi</td>
+                        <td>Shortnose cisco</td>
+                        <td align="right">1985</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Alaotra grebe</td>
+                        <td align="right">1985</td>
+                        <td>Africa</td>
+                        <td>Madagascar</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Dipodomys gravipes </td>
+                        <td>San Quintin kangaroo rat</td>
+                        <td align="right">1986</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Amphibian</td>
+                        <td> </td>
+                        <td>Craugastor escoces</td>
+                        <td align="right">1986</td>
+                        <td>North America</td>
+                        <td>Costa Rica</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Eastern Canary Islands chiffchaff</td>
+                        <td align="right">1986</td>
+                        <td>Africa</td>
+                        <td>Spain</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Rhinichthys deaconi</td>
+                        <td>Las Vegas dace</td>
+                        <td align="right">1986</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Insect</td>
+                        <td>Rhyacophila amabilis</td>
+                        <td>Castle Lake caddisfly</td>
+                        <td align="right">1986</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Rhinichthys cataractae smithi</td>
+                        <td>Banff longnose dace</td>
+                        <td align="right">1987</td>
+                        <td>North America</td>
+                        <td>Canada</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Campephilus principalis bairdii</td>
+                        <td>Cuban ivory-billed woodpecker</td>
+                        <td align="right">1987</td>
+                        <td>North America</td>
+                        <td>Cuba</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Moho braccatus</td>
+                        <td>Kaua&#39;i &#39;o&#39;o</td>
+                        <td align="right">1987</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Malabar civet</td>
+                        <td align="right">1987</td>
+                        <td>Asia</td>
+                        <td>India</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Ammodramus maritimus nigrescens</td>
+                        <td>Dusky seaside sparrow</td>
+                        <td align="right">1987</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Gambusia amistadensis</td>
+                        <td>Amistad gambusia</td>
+                        <td align="right">1987</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Sylvilagus floridanus hitchensi</td>
+                        <td>Smith Island cottontail</td>
+                        <td align="right">1987</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Campephilus principalis</td>
+                        <td>Ivory-billed woodpecker</td>
+                        <td align="right">1987</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Kouprey (lived in South Asia)</td>
+                        <td align="right">1988</td>
+                        <td>Asia</td>
+                        <td>Cambodia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Loxops coccineus ochraceus</td>
+                        <td>Maui &#39;akepa</td>
+                        <td align="right">1988</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Vermivora bachmanii</td>
+                        <td>Bachman&#39;s warbler</td>
+                        <td align="right">1988</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Etheostoma sellare</td>
+                        <td>Maryland darter</td>
+                        <td align="right">1988</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Mysateles garridoi</td>
+                        <td>Garrido&#39;s hutia</td>
+                        <td align="right">1989</td>
+                        <td>North America</td>
+                        <td>Cuba</td>
+                        </tr>
+                        <tr>
+                        <td>Amphibian</td>
+                        <td>Bufo periglenes</td>
+                        <td>Golden toad</td>
+                        <td align="right">1989</td>
+                        <td>North America</td>
+                        <td>Costa Rica</td>
+                        </tr>
+                        <tr>
+                        <td>Amphibian</td>
+                        <td> </td>
+                        <td>Atelopus longirostris</td>
+                        <td align="right">1989</td>
+                        <td>South America</td>
+                        <td>Ecuador</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Podilymbus gigas</td>
+                        <td>Atitlan grebe</td>
+                        <td align="right">1989</td>
+                        <td>North America</td>
+                        <td>Guatemala</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Myadestes myadestinus</td>
+                        <td>Kama&#39;o</td>
+                        <td align="right">1989</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>San Cristobal vermilion flycatcher</td>
+                        <td align="right">1990</td>
+                        <td>South America</td>
+                        <td>Ecuador </td>
+                        </tr>
+                        <tr>
+                        <td>Amphibian</td>
+                        <td>Thorius infernalis</td>
+                        <td>Atoyac minute salamander</td>
+                        <td align="right">1990</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Lepus granatensis solisi</td>
+                        <td>Majorcan hare</td>
+                        <td align="right">1990</td>
+                        <td>Europe</td>
+                        <td>Spain</td>
+                        </tr>
+                        <tr>
+                        <td>Amphibian</td>
+                        <td>Thorius narismagnus</td>
+                        <td>San Martin pygmy salamander</td>
+                        <td align="right">1990</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Crustacean</td>
+                        <td>Cambarellus alvarezi</td>
+                        <td> </td>
+                        <td align="right">1994</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Pacific degu</td>
+                        <td align="right">1994</td>
+                        <td>South America</td>
+                        <td>Chile</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Ninox novaeseelandiae undulata</td>
+                        <td>Norfolk boobook</td>
+                        <td align="right">1996</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Western black rhinoceros</td>
+                        <td align="right">1996</td>
+                        <td>Africa</td>
+                        <td>Cameroon</td>
+                        </tr>
+                        <tr>
+                        <td>Insect</td>
+                        <td>Neduba extincta</td>
+                        <td>Antioch Dunes shieldback katydid</td>
+                        <td align="right">1996</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Amphibian</td>
+                        <td>Taudactylus acutirostris</td>
+                        <td>Sharp-snouted day frog</td>
+                        <td align="right">1997</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td> </td>
+                        <td>Slender-billed curlew</td>
+                        <td align="right">1998</td>
+                        <td>Asia</td>
+                        <td>Russia </td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td> </td>
+                        <td>Gokce baligi</td>
+                        <td align="right">1998</td>
+                        <td>Asia</td>
+                        <td>Turkey</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Porphyrio albus</td>
+                        <td>Lord Howe swamphen</td>
+                        <td align="right">2000</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Prosobonia ellisi</td>
+                        <td>Moorea sandpiper</td>
+                        <td align="right">2000</td>
+                        <td>Oceania</td>
+                        <td>French Polynesia</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Loxops coccineus wolstenholmei</td>
+                        <td>O&#39;ahu &#39;akepa</td>
+                        <td align="right">2000</td>
+                        <td>Oceania</td>
+                        <td>Hawaii</td>
+                        </tr>
+                        <tr>
+                        <td>Bird</td>
+                        <td>Prosobonia cancellata</td>
+                        <td>Kiritimati sandpiper</td>
+                        <td align="right">2000</td>
+                        <td>Oceania</td>
+                        <td>Kiribati</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Formosan clouded leopard</td>
+                        <td align="right">2000</td>
+                        <td>Asia</td>
+                        <td>Taiwan</td>
+                        </tr>
+                        <tr>
+                        <td>Amphibian</td>
+                        <td> </td>
+                        <td>Osgood&#39;s Ethiopian toad</td>
+                        <td align="right">2003</td>
+                        <td>Africa</td>
+                        <td>Ethiopia</td>
+                        </tr>
+                        <tr>
+                        <td>Amphibian</td>
+                        <td> </td>
+                        <td>Craugastor chrysozetetes</td>
+                        <td align="right">2004</td>
+                        <td>North America</td>
+                        <td>Honduras</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td> </td>
+                        <td>Baiji</td>
+                        <td align="right">2004</td>
+                        <td>Asia</td>
+                        <td>China</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Capra pyrenaica pyrenaica</td>
+                        <td>Pyrenean ibex (lived in Iberian Peninsula)</td>
+                        <td align="right">2005</td>
+                        <td>Europe</td>
+                        <td>Spain</td>
+                        </tr>
+                        <tr>
+                        <td>Fish</td>
+                        <td>Chirostoma bartoni</td>
+                        <td>Alberca silverside</td>
+                        <td align="right">2006</td>
+                        <td>North America</td>
+                        <td>Mexico</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Puma concolor couguar</td>
+                        <td>Eastern cougar (lived in northeastern North America)</td>
+                        <td align="right">2011</td>
+                        <td>North America</td>
+                        <td>Canada</td>
+                        </tr>
+                        <tr>
+                        <td>Crustacean</td>
+                        <td>Dexteria floridana</td>
+                        <td>Florida fairy shrimp </td>
+                        <td align="right">2011</td>
+                        <td>North America</td>
+                        <td>United States</td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td> </td>
+                        <td>Pinta Island tortoise</td>
+                        <td align="right">2012</td>
+                        <td>South America</td>
+                        <td>Ecuador </td>
+                        </tr>
+                        <tr>
+                        <td>Reptile</td>
+                        <td>Emoia nativitatis</td>
+                        <td>Christmas Island forest skink</td>
+                        <td align="right">2014</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Mammal</td>
+                        <td>Melomys rubicola</td>
+                        <td>Bramble cay melomys</td>
+                        <td align="right">2016</td>
+                        <td>Oceania</td>
+                        <td>Australia</td>
+                        </tr>
+                        <tr>
+                        <td>Amphibian</td>
+                        <td>Ecnomiohyla rabborum&#39;</td>
+                        <td>Rabbs&#39; fringe-limbed treefrog</td>
+                        <td align="right">2016</td>
+                        <td>North America</td>
+                        <td>Panama</td>
+                        </tr>
+                        </tbody></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </body>
+
+    </html>
