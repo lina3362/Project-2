@@ -51,9 +51,6 @@ var rect = elem.getBoundingClientRect(),
   docElem = doc.documentElement,
   pageOffset = getPageOffset();
 
-  // getBoundingClientRect contains left scroll in Chrome on Android.
-  // I haven't found a feature detection that proves this. Worst case
-  // scenario on mis-match: the 'tap' feature on horizontal sliders breaks.
   if ( /webkit.*Chrome.*Mobile/i.test(navigator.userAgent) ) {
     pageOffset.x = 0;
   }
@@ -82,7 +79,6 @@ function limit ( a ) {
 }
 
 // Wraps a variable as an array, if it isn't one yet.
-// Note that an input array is returned by reference!
 function asArray ( a ) {
   return Array.isArray(a) ? a : [a];
 }
@@ -94,7 +90,6 @@ function countDecimals ( numStr ) {
   return pieces.length > 1 ? pieces[1].length : 0;
 }
 
-// http://youmightnotneedjquery.com/#add_class
 function addClass ( el, className ) {
   if ( el.classList ) {
     el.classList.add(className);
@@ -103,7 +98,6 @@ function addClass ( el, className ) {
   }
 }
 
-// http://youmightnotneedjquery.com/#remove_class
 function removeClass ( el, className ) {
   if ( el.classList ) {
     el.classList.remove(className);
@@ -131,13 +125,9 @@ function getPageOffset ( ) {
   };
 }
 
-// we provide a function to compute constants instead
-// of accessing window.* as soon as the module needs it
-// so that we do not compute anything if not needed
+
 function getActions ( ) {
 
-  // Determine the events to bind. IE11 implements pointerEvents without
-  // a prefix, which breaks compatibility with the IE10 implementation.
   return window.navigator.pointerEnabled ? {
     start: 'pointerdown',
     move: 'pointermove',
@@ -295,9 +285,6 @@ function handleEntryPoint ( index, value, that ) {
   that.xPct.push( percentage );
   that.xVal.push( value[0] );
 
-  // NaN will evaluate to false too, but to keep
-  // logging clear, set step explicitly. Make sure
-  // not to override the 'step' setting with false.
   if ( !percentage ) {
     if ( !isNaN( value[1] ) ) {
       that.xSteps[0] = value[1];
@@ -431,18 +418,6 @@ Spectrum.prototype.convert = function ( value ) {
   return this.getStep(this.toStepping(value));
 };
 
-/*	Every input option is tested and parsed. This'll prevent
-endless validation in internal methods. These tests are
-structured with an item for every option available. An
-option can be marked as required by setting the 'r' flag.
-The testing function is provided with three arguments:
-  - The provided value for the option;
-  - A reference to the options object;
-  - The name for the option;
-
-The testing function returns false when an error is detected,
-or true when everything is OK. It can also modify the option
-object, to make sure all values can be correctly looped elsewhere. */
 
 var defaultFormatter = { 'to': function( value ){
   return value !== undefined && value.toFixed(2);
@@ -1483,11 +1458,7 @@ function documentLeave ( event, data ) {
 // Handle movement on document for handle and range drag.
 function eventMove ( event, data ) {
 
-  // Fix #498
-  // Check value of .buttons in 'start' to work around a bug in IE10 mobile (data.buttonsProperty).
-  // https://connect.microsoft.com/IE/feedback/details/927005/mobile-ie10-windows-phone-buttons-property-of-pointermove-event-always-zero
-  // IE9 has .buttons and .which zero on mousemove.
-  // Firefox breaks the spec MDN defines.
+
   if ( navigator.appVersion.indexOf("MSIE 9") === -1 && event.buttons === 0 && data.buttonsProperty !== 0 ) {
     return eventEnd(event, data);
   }
@@ -1576,8 +1547,6 @@ function eventStart ( event, data ) {
 
   document.documentElement.noUiListeners = moveEvent.concat(endEvent, outEvent);
 
-  // Text selection isn't an issue on touch devices,
-  // so adding cursor styles can be skipped.
   if ( event.cursor ) {
 
     // Prevent the 'I' cursor and extend the range-drag cursor.
